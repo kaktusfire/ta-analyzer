@@ -77,6 +77,21 @@
             margin-top: 0;
             color: #166534;
         }
+
+        .btn-download {
+            display: inline-block;
+            margin-top: 15px;
+            background-color: #10b981;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .btn-download:hover {
+            background-color: #059669;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +121,12 @@
     <div class="summary-box">
         <h4>📌 Sažetak analize</h4>
         {{ summary | safe }}
+
+        {% if download_link %}
+        <p>
+            <a href="{{ download_link }}" download class="btn-download">⬇️ Preuzmi JSON fajl</a>
+        </p>
+        {% endif %}
     </div>
     {% endif %}
 </body>
