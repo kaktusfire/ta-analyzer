@@ -6,8 +6,8 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 # 📁 Putanje
-CONFIG_PATH = Path(__file__).resolve().parents[2] / "sources" / "symbols_config.json"
-CACHE_DIR = Path(__file__).resolve().parents[2] / "sources" / "cot_cache"
+CONFIG_PATH = Path("sources/symbols_config.json")
+CACHE_DIR = Path("sources/cot_cache")
 OUT_DIR = Path("data/ai")
 
 # 📆 Učitaj config
