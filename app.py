@@ -44,6 +44,7 @@ def load_summary(filepath):
 @app.route("/", methods=["GET", "POST"])
 def index():
     summary = None
+    download_link = None
 
     if request.method == "POST":
         symbols = request.form.get("symbols", "")
@@ -60,11 +61,19 @@ def index():
 
             if output_path and os.path.exists(output_path):
                 summary = load_summary(output_path)
-                return render_template("index.html", summary=summary)
+                rel_path = os.path.relpath(output_path, start=".")
+                return render_template("index.html", summary=summary, download_link="/" + rel_path.replace("\\", "/"))
             else:
                 return "Fajl nije generisan ili ne postoji.", 500
 
-    return render_template("index.html", summary=summary)
+    return render_template("index.html", summary=summary, download_link=download_link)
+
+@app.route("/output_files/<path:filename>")
+def download_file(filename):
+    path = os.path.join("output_files", filename)
+    if os.path.exists(path):
+        return send_file(path, as_attachment=True)
+    return "Fajl ne postoji", 404
 
 if __name__ == "__main__":
     app.run(debug=True)
