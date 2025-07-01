@@ -3,3 +3,4 @@ Flask
 tradingview_ta
 pandas
 gunicorn
+beautifulsoup4
