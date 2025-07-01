@@ -2,3 +2,4 @@
 Flask
 tradingview_ta
 pandas
+gunicorn
