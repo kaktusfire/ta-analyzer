@@ -17,8 +17,9 @@ CONFIG_PATH = Path("sources/cot_sources_config.json")
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
 # 🔧 Učitaj izvorne linkove
-with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-    sources = json.load(f)
+def load_cot_sources():
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 def download_and_cache(url, filename):
     path = CACHE_DIR / filename
@@ -30,7 +31,7 @@ def download_and_cache(url, filename):
     if response.status_code == 200:
         with open(path, "w", encoding="utf-8") as f:
             f.write(response.text)
-        print(f"💾 Sačuvano u: {path}")
+        print(f"📅 Sačuvano u: {path}")
         return path
     else:
         print(f"❌ Neuspješno preuzimanje: {url} ({response.status_code})")
@@ -140,34 +141,32 @@ def parse_cot_block_full(market_name, block_text):
 
     return result
 
-# 📦 Glavna lista rezultata
-full_report = {
-    "symbol": "FULL",
-    "collected_at": datetime.now().isoformat(),
-    "entries": []
-}
+def run_full_cot_fetcher():
+    sources = load_cot_sources()
+    full_report = {
+        "symbol": "FULL",
+        "collected_at": datetime.now().isoformat(),
+        "entries": []
+    }
 
-# 🔁 Loop kroz sve izvore
-for source_id, url in sources.items():
-    filename = f"{source_id}_{TODAY}.html"
-    path = download_and_cache(url, filename)
-    if not path:
-        continue
-    with open(path, "r", encoding="utf-8") as f:
-        html = f.read()
-    soup = BeautifulSoup(html, "html.parser")
-    pre = soup.find("pre")
-    if not pre:
-        print(f"⚠️ Nema <pre> taga u: {source_id}")
-        continue
-    blocks = extract_cot_blocks_from_pre(pre.get_text())
-    for header, block in blocks:
-        parsed = parse_cot_block_full(header, block)
-        if parsed and parsed["groups"]:
-            full_report["entries"].append(parsed)
+    for source_id, url in sources.items():
+        filename = f"{source_id}_{TODAY}.html"
+        path = download_and_cache(url, filename)
+        if not path:
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            html = f.read()
+        soup = BeautifulSoup(html, "html.parser")
+        pre = soup.find("pre")
+        if not pre:
+            print(f"⚠️ Nema <pre> taga u: {source_id}")
+            continue
+        blocks = extract_cot_blocks_from_pre(pre.get_text())
+        for header, block in blocks:
+            parsed = parse_cot_block_full(header, block)
+            if parsed and parsed["groups"]:
+                full_report["entries"].append(parsed)
 
-# 💾 Snimi finalni JSON
-with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-    json.dump(full_report, f, indent=2)
-
-print(f"✅ Full COT izvještaj sačuvan u: {OUTPUT_FILE}")
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        json.dump(full_report, f, indent=2)
+    print(f"✅ Full COT izvještaj sačuvan u: {OUTPUT_FILE}")
