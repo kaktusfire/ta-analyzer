@@ -4,3 +4,4 @@ tradingview_ta
 pandas
 gunicorn
 beautifulsoup4
+requests
