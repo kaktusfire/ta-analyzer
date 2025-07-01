@@ -1,0 +1,4 @@
+
+Flask
+tradingview_ta
+pandas
