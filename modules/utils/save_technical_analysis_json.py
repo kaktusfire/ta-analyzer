@@ -5,7 +5,7 @@ from datetime import datetime
 
 def save_json_data(symbol: str, data: dict, filename: str = None):
     timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-    folder_path = os.path.join("data", "ai")
+    folder_path = os.path.join("output_files")
     os.makedirs(folder_path, exist_ok=True)
 
     if filename is None:
