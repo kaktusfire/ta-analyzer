@@ -1,0 +1,159 @@
+{
+  "EUR/USD": {
+    "aliases": ["EURUSD", "EUR/USD", "EU", "EURO FX"],
+    "map": {
+      "tradingview_ta_v2": "EURUSD",
+      "tvdatafeed": "EURUSD"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "EURO FX"
+    }
+  },
+  "GBP/USD": {
+    "aliases": ["GBPUSD", "GBP/USD", "GB", "CABLE"],
+    "map": {
+      "tradingview_ta_v2": "GBPUSD",
+      "tvdatafeed": "GBPUSD"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "BRITISH POUND"
+    }
+  },
+  "USD/JPY": {
+    "aliases": ["USDJPY", "USD/JPY"],
+    "map": {
+      "tradingview_ta_v2": "USDJPY",
+      "tvdatafeed": "USDJPY"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "JAPANESE YEN"
+    }
+  },
+  "USD/CHF": {
+    "aliases": ["USDCHF", "USD/CHF"],
+    "map": {
+      "tradingview_ta_v2": "USDCHF",
+      "tvdatafeed": "USDCHF"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "SWISS FRANC"
+    }
+  },
+  "AUD/USD": {
+    "aliases": ["AUDUSD", "AUD/USD"],
+    "map": {
+      "tradingview_ta_v2": "AUDUSD",
+      "tvdatafeed": "AUDUSD"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "AUSTRALIAN DOLLAR"
+    }
+  },
+  "NZD/USD": {
+    "aliases": ["NZDUSD", "NZD/USD"],
+    "map": {
+      "tradingview_ta_v2": "NZDUSD",
+      "tvdatafeed": "NZDUSD"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "NEW ZEALAND DOLLAR"
+    }
+  },
+  "USD/CAD": {
+    "aliases": ["USDCAD", "USD/CAD"],
+    "map": {
+      "tradingview_ta_v2": "USDCAD",
+      "tvdatafeed": "USDCAD"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex",
+    "cot": {
+      "report_type": "financial",
+      "report_name": "CANADIAN DOLLAR"
+    }
+  },
+  "EUR/GBP": {
+    "aliases": ["EURGBP", "EUR/GBP"],
+    "map": {
+      "tradingview_ta_v2": "EURGBP",
+      "tvdatafeed": "EURGBP"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex"
+  },
+  "EUR/JPY": {
+    "aliases": ["EURJPY", "EUR/JPY"],
+    "map": {
+      "tradingview_ta_v2": "EURJPY",
+      "tvdatafeed": "EURJPY"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex"
+  },
+  "GBP/JPY": {
+    "aliases": ["GBPJPY", "GBP/JPY"],
+    "map": {
+      "tradingview_ta_v2": "GBPJPY",
+      "tvdatafeed": "GBPJPY"
+    },
+    "exchanges": ["OANDA", "OANDA"],
+    "screener": "forex"
+  },
+  "XAU/USD": {
+    "aliases": ["XAUUSD", "XAU/USD", "GOLD", "GOLD/USD"],
+    "map": {
+      "tradingview_ta_v2": "XAUUSD",
+      "tvdatafeed": "XAUUSD"
+    },
+    "exchanges": ["OANDA"],
+    "screener": "cfd",
+    "cot": {
+      "report_type": "legacy",
+      "report_name": "GOLD"
+    }
+  },
+  "BTC/USD": {
+    "aliases": ["BTCUSD", "BTC/USD", "BTC", "Bitcoin"],
+    "map": {
+      "tradingview_ta_v2": "BTCUSD",
+      "tvdatafeed": "BTCUSD"
+    },
+    "exchanges": ["BINANCE", "COINBASE"],
+    "screener": "crypto",
+    "cot": {
+      "report_type": "legacy",
+      "report_name": "BITCOIN"
+    }
+  },
+  "DXY": {
+    "aliases": ["DXY", "USDINDEX", "US DOLLAR INDEX", "DOLLAR INDEX"],
+    "map": {
+      "tradingview_ta_v2": "DXY",
+      "tvdatafeed": "DXY"
+    },
+    "exchanges": ["TVC", "ICE"],
+    "screener": "CFD",
+    "cot": {
+      "report_type": "legacy",
+      "report_name": "U.S. DOLLAR INDEX"
+    }
+  }
+}
