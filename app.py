@@ -23,19 +23,50 @@ def load_summary(filepath):
             summary_html += "</ul>"
             return summary_html
 
-        # Summary za COT fajl
+        # Summary za COT fajl (tabelarni prikaz)
         elif "entries" in data and len(data["entries"]) > 0:
             entry = data["entries"][0]
-            group = entry["groups"][0]
-            net = group["analysis"].get("net", "N/A")
-            dominance = group["analysis"].get("dominance", "N/A")
-            alert = group["analysis"].get("alert_level", "N/A")
-            traders = group.get("traders", "N/A")
+            market = entry["market"]
+            oi = entry["open_interest"]
+            rows = ""
+
+            for group in entry["groups"]:
+                g = group["group"]
+                net = group["analysis"].get("net", 0)
+                dom = group["analysis"].get("dominance", "-")
+                alert = group["analysis"].get("alert_level", "-")
+                long_pct = group["percentages"].get("long_pct", 0)
+                short_pct = group["percentages"].get("short_pct", 0)
+                traders = group.get("traders", 0)
+
+                emoji_dom = "🟢" if dom == "bullish" else "🔴" if dom == "bearish" else "⚪"
+                emoji_alert = "🔴" if alert == "high" else "🟠" if alert == "medium" else "🟢"
+
+                rows += f"""
+                <tr>
+                    <td>{g}</td>
+                    <td>{net:+}</td>
+                    <td>{emoji_dom} {dom.capitalize()}</td>
+                    <td>{emoji_alert} {alert.capitalize()}</td>
+                    <td>{long_pct:.1f}%</td>
+                    <td>{short_pct:.1f}%</td>
+                    <td>{traders}</td>
+                </tr>
+                """
+
             return f"""
-                <p><strong>Market:</strong> {entry['market']}</p>
-                <p><strong>Net pozicija:</strong> {net}</p>
-                <p><strong>Dominacija:</strong> {dominance}</p>
-                <p><strong>Alert nivo:</strong> {alert}, Trgovaca: {traders}</p>
+            <p><strong>📌 Tržište:</strong> {market}<br><strong>📅 Open interest:</strong> {oi}</p>
+            <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; font-size: 14px;">
+                <thead style="background-color: #f3f4f6;">
+                    <tr>
+                        <th>Grupa</th><th>Net</th><th>Dominacija</th><th>Alert</th>
+                        <th>% Long</th><th>% Short</th><th>Trgovaca</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows}
+                </tbody>
+            </table>
             """
 
     except Exception as e:
