@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 from bs4 import BeautifulSoup
+from cot_fetcher_full import run_full_cot_fetcher
 
 # 📁 Putanje
 CONFIG_PATH = Path("sources/symbols_config.json")
@@ -138,6 +139,7 @@ def search_all_sources(report_name):
     return results
 
 def run_cot_analysis(selected_symbols, output_dir="output_files"):
+    run_full_cot_fetcher()  # ⭐ Automatski povuci najnovije COT izvještaje
     cfg = load_symbols_config()
     os.makedirs(output_dir, exist_ok=True)
 
