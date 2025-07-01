@@ -10,7 +10,7 @@ CONFIG_PATH = Path(__file__).resolve().parents[2] / "sources" / "symbols_config.
 CACHE_DIR = Path(__file__).resolve().parents[2] / "sources" / "cot_cache"
 OUT_DIR = Path("data/ai")
 
-# 📦 Učitaj config
+# 📆 Učitaj config
 def load_symbols_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -131,44 +131,23 @@ def search_all_sources(report_name):
         blocks = extract_blocks_from_pre(pre.get_text())
         for header, block in blocks:
             if report_name.upper() in header.upper():
-                print(f"📥 Pronađen blok: {report_name} u {file.name}")
+                print(f"📅 Pronađen blok: {report_name} u {file.name}")
                 entry = parse_cot_block(header, block)
                 entry["source"] = file.stem.split("_")[0]  # npr: financial_lf
                 results.append(entry)
     return results
 
-def save_json(symbol_key, data):
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    filename = f"{symbol_key.lower().replace('/','')}_cot.json"
-    filepath = OUT_DIR / filename
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    print(f"💾 JSON snimljen: {filepath}")
-
-# ▶️ MAIN
-if __name__ == "__main__":
+def run_cot_analysis(selected_symbols, output_dir="output_files"):
     cfg = load_symbols_config()
-    all_symbols = list(cfg.keys())
-    print("📌 Dostupni simboli iz symbols_config.json:")
-    print(", ".join(all_symbols))
+    os.makedirs(output_dir, exist_ok=True)
 
-    user_input = input("Unesi simbol(e) (ALL za sve, FULL za cijeli COT izvještaj): ").strip().lower()
-
-    if user_input == "full":
-        os.system("python modules/cot/cot_fetcher_full.py")
-        exit()
-
-    selected = all_symbols if user_input == "all" else [normalize_symbol(user_input)]
-
-    for symbol in selected:
+    for symbol in selected_symbols:
         sym_info = next(
             (info for key, info in cfg.items()
              if symbol == key or symbol in [normalize_symbol(alias) for alias in info.get("aliases", [])]),
             None
         )
-        print(f"🔍 DEBUG: sym_info for {symbol} →", sym_info)
         if not sym_info or "cot" not in sym_info or "report_name" not in sym_info["cot"]:
-            print(f"⚠️ Nema mappinga za simbol: {symbol}")
             continue
 
         report_name = sym_info["cot"]["report_name"]
@@ -180,6 +159,11 @@ if __name__ == "__main__":
                 "collected_at": datetime.now().isoformat(),
                 "entries": results
             }
-            save_json(symbol, result_json)
-        else:
-            print(f"⚠️ Nema rezultata za: {symbol}")
+
+            filename = f"{symbol.lower().replace('/', '')}_cot.json"
+            filepath = os.path.join(output_dir, filename)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(result_json, f, indent=2)
+            return filepath  # ← bitno za send_file()
+
+    return None
