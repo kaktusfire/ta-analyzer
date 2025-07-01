@@ -1,0 +1,22 @@
+{
+  "ag_lf": "https://www.cftc.gov/dea/futures/ag_lf.htm",
+  "petroleum_lf": "https://www.cftc.gov/dea/futures/petroleum_lf.htm",
+  "nat_gas_lf": "https://www.cftc.gov/dea/futures/nat_gas_lf.htm",
+  "electricity_lf": "https://www.cftc.gov/dea/futures/electricity_lf.htm",
+  "other_lf": "https://www.cftc.gov/dea/futures/other_lf.htm",
+  "f_disagg": "https://www.cftc.gov/dea/newcot/f_disagg.txt",
+  "disagg_notes": "https://www.cftc.gov/idc/groups/public/@commitmentsoftraders/documents/file/disaggregatedcotexplanatorynot.pdf",
+  "financial_lf": "https://www.cftc.gov/dea/futures/financial_lf.htm",
+  "deacbtlf": "https://www.cftc.gov/dea/futures/deacbtlf.htm",
+  "deacmelf": "https://www.cftc.gov/dea/futures/deacmelf.htm",
+  "deacboelf": "https://www.cftc.gov/dea/futures/deacboelf.htm",
+  "deamgelf": "https://www.cftc.gov/dea/futures/deamgelf.htm",
+  "deacmxlf": "https://www.cftc.gov/dea/futures/deacmxlf.htm",
+  "deanybtlf": "https://www.cftc.gov/dea/futures/deanybtlf.htm",
+  "deaiceulf": "https://www.cftc.gov/dea/futures/deaiceulf.htm",
+  "deaifedlf": "https://www.cftc.gov/dea/futures/deaifedlf.htm",
+  "deafrexlf": "https://www.cftc.gov/dea/futures/deafrexlf.htm",
+  "deanymelf": "https://www.cftc.gov/dea/futures/deanymelf.htm",
+  "deanodxlf": "https://www.cftc.gov/dea/futures/deanodxlf.htm",
+  "deaviewcit": "https://www.cftc.gov/dea/options/deaviewcit.htm"
+}
