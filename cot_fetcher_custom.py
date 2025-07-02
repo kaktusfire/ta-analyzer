@@ -4,14 +4,13 @@ import re
 from datetime import datetime
 from pathlib import Path
 from bs4 import BeautifulSoup
-from cot_fetcher_full import run_full_cot_fetcher
 
 # 📁 Putanje
-CONFIG_PATH = Path("sources/symbols_config.json")
-CACHE_DIR = Path("sources/cot_cache")
+CONFIG_PATH = Path(__file__).resolve().parents[2] / "sources" / "symbols_config.json"
+CACHE_DIR = Path(__file__).resolve().parents[2] / "sources" / "cot_cache"
 OUT_DIR = Path("data/ai")
 
-# 📆 Učitaj config
+# 📦 Učitaj config
 def load_symbols_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -47,6 +46,19 @@ def extract_row(lines, after_phrase):
             return best
     return ""
 
+def extract_largest_traders(lines):
+    largest = {}
+    pattern = re.compile(r"Percent of Open Interest Held by the Largest (\d) Traders.*?: ([\d\.]+)% Long, ([\d\.]+)% Short")
+    for line in lines:
+        match = pattern.search(line)
+        if match:
+            count = int(match.group(1))
+            largest[str(count)] = {
+                "long": float(match.group(2)),
+                "short": float(match.group(3))
+            }
+    return largest
+
 def parse_cot_block(header, block_text):
     lines = block_text.splitlines()
     categories = ["Non-Commercial", "Commercial", "Spreading", "Total", "Nonreportable"]
@@ -65,10 +77,12 @@ def parse_cot_block(header, block_text):
     chg = extract_numbers(extract_row(lines, "Changes from"))
     pct = extract_numbers(extract_row(lines, "Percent of Open Interest"), float)
     trd = extract_numbers(extract_row(lines, "Number of Traders"))
+    largest_traders = extract_largest_traders(lines)
 
     entry = {
         "market": header,
         "open_interest": open_interest,
+        "largest_traders": largest_traders,
         "groups": []
     }
 
@@ -88,6 +102,7 @@ def parse_cot_block(header, block_text):
             continue
 
         net = long - short
+        net_change = long_chg - short_chg
         ratio = round(net / open_interest, 4) if open_interest else None
         dominance = "bullish" if net > 0 else "bearish" if net < 0 else "neutral"
         alert = "high" if ratio and abs(ratio) > 0.3 else "medium" if ratio and abs(ratio) > 0.15 else "low"
@@ -101,6 +116,7 @@ def parse_cot_block(header, block_text):
             "traders": num_traders,
             "analysis": {
                 "net": net,
+                "net_change": net_change,
                 "net_ratio": ratio,
                 "dominance": dominance,
                 "alert_level": alert,
@@ -132,24 +148,44 @@ def search_all_sources(report_name):
         blocks = extract_blocks_from_pre(pre.get_text())
         for header, block in blocks:
             if report_name.upper() in header.upper():
-                print(f"📅 Pronađen blok: {report_name} u {file.name}")
+                print(f"📥 Pronađen blok: {report_name} u {file.name}")
                 entry = parse_cot_block(header, block)
                 entry["source"] = file.stem.split("_")[0]  # npr: financial_lf
                 results.append(entry)
     return results
 
-def run_cot_analysis(selected_symbols, output_dir="output_files"):
-    run_full_cot_fetcher()  # ⭐ Automatski povuci najnovije COT izvještaje
-    cfg = load_symbols_config()
-    os.makedirs(output_dir, exist_ok=True)
+def save_json(symbol_key, data):
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"{symbol_key.lower().replace('/', '')}_cot.json"
+    filepath = OUT_DIR / filename
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    print(f"💾 JSON snimljen: {filepath}")
 
-    for symbol in selected_symbols:
+# ▶️ MAIN
+if __name__ == "__main__":
+    cfg = load_symbols_config()
+    all_symbols = list(cfg.keys())
+    print("📌 Dostupni simboli iz symbols_config.json:")
+    print(", ".join(all_symbols))
+
+    user_input = input("Unesi simbol(e) (ALL za sve, FULL za cijeli COT izvještaj): ").strip().lower()
+
+    if user_input == "full":
+        os.system("python modules/cot/cot_fetcher_full.py")
+        exit()
+
+    selected = all_symbols if user_input == "all" else [normalize_symbol(user_input)]
+
+    for symbol in selected:
         sym_info = next(
             (info for key, info in cfg.items()
              if symbol == key or symbol in [normalize_symbol(alias) for alias in info.get("aliases", [])]),
             None
         )
+        print(f"🔍 DEBUG: sym_info for {symbol} →", sym_info)
         if not sym_info or "cot" not in sym_info or "report_name" not in sym_info["cot"]:
+            print(f"⚠️ Nema mappinga za simbol: {symbol}")
             continue
 
         report_name = sym_info["cot"]["report_name"]
@@ -161,11 +197,6 @@ def run_cot_analysis(selected_symbols, output_dir="output_files"):
                 "collected_at": datetime.now().isoformat(),
                 "entries": results
             }
-
-            filename = f"{symbol.lower().replace('/', '')}_cot.json"
-            filepath = os.path.join(output_dir, filename)
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(result_json, f, indent=2)
-            return filepath  # ← bitno za send_file()
-
-    return None
+            save_json(symbol, result_json)
+        else:
+            print(f"⚠️ Nema rezultata za: {symbol}")
