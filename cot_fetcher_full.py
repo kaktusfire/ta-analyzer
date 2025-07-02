@@ -17,9 +17,8 @@ CONFIG_PATH = Path("sources/cot_sources_config.json")
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
 # 🔧 Učitaj izvorne linkove
-def load_cot_sources():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    sources = json.load(f)
 
 def download_and_cache(url, filename):
     path = CACHE_DIR / filename
@@ -31,7 +30,7 @@ def download_and_cache(url, filename):
     if response.status_code == 200:
         with open(path, "w", encoding="utf-8") as f:
             f.write(response.text)
-        print(f"📅 Sačuvano u: {path}")
+        print(f"💾 Sačuvano u: {path}")
         return path
     else:
         print(f"❌ Neuspješno preuzimanje: {url} ({response.status_code})")
@@ -50,6 +49,19 @@ def extract_cot_blocks_from_pre(text):
             block = "\n".join(lines[idx-1:idx+60])
             sections.append((header.strip(), block))
     return sections
+
+def extract_largest_traders(lines):
+    largest = {}
+    pattern = re.compile(r"Percent of Open Interest Held by the Largest (\d) Traders.*?: ([\d\.]+)% Long, ([\d\.]+)% Short")
+    for line in lines:
+        match = pattern.search(line)
+        if match:
+            count = int(match.group(1))
+            largest[str(count)] = {
+                "long": float(match.group(2)),
+                "short": float(match.group(3))
+            }
+    return largest
 
 def parse_cot_block_full(market_name, block_text):
     categories = ["Non-Commercial", "Commercial", "Spreading", "Total", "Nonreportable"]
@@ -84,10 +96,12 @@ def parse_cot_block_full(market_name, block_text):
     chg = extract_numbers(extract_row("Changes from"), int)
     pct = extract_numbers(extract_row("Percent of Open Interest"), float)
     trd = extract_numbers(extract_row("Number of Traders"), int)
+    largest_traders = extract_largest_traders(lines)
 
     result = {
         "market": market_name,
         "open_interest": open_interest,
+        "largest_traders": largest_traders,
         "groups": []
     }
 
@@ -107,6 +121,7 @@ def parse_cot_block_full(market_name, block_text):
             continue
 
         net = long - short
+        net_change = long_chg - short_chg
         ratio = round(net / open_interest, 4) if open_interest else None
         dominance = "bullish" if net > 0 else "bearish" if net < 0 else "neutral"
         alert = "high" if ratio and abs(ratio) > 0.3 else "medium" if ratio and abs(ratio) > 0.15 else "low"
@@ -120,6 +135,7 @@ def parse_cot_block_full(market_name, block_text):
             "traders": num_traders,
             "analysis": {
                 "net": net,
+                "net_change": net_change,
                 "net_ratio": ratio,
                 "dominance": dominance,
                 "alert_level": alert,
@@ -141,32 +157,34 @@ def parse_cot_block_full(market_name, block_text):
 
     return result
 
-def run_full_cot_fetcher():
-    sources = load_cot_sources()
-    full_report = {
-        "symbol": "FULL",
-        "collected_at": datetime.now().isoformat(),
-        "entries": []
-    }
+# 📦 Glavna lista rezultata
+full_report = {
+    "symbol": "FULL",
+    "collected_at": datetime.now().isoformat(),
+    "entries": []
+}
 
-    for source_id, url in sources.items():
-        filename = f"{source_id}_{TODAY}.html"
-        path = download_and_cache(url, filename)
-        if not path:
-            continue
-        with open(path, "r", encoding="utf-8") as f:
-            html = f.read()
-        soup = BeautifulSoup(html, "html.parser")
-        pre = soup.find("pre")
-        if not pre:
-            print(f"⚠️ Nema <pre> taga u: {source_id}")
-            continue
-        blocks = extract_cot_blocks_from_pre(pre.get_text())
-        for header, block in blocks:
-            parsed = parse_cot_block_full(header, block)
-            if parsed and parsed["groups"]:
-                full_report["entries"].append(parsed)
+# 🔁 Loop kroz sve izvore
+for source_id, url in sources.items():
+    filename = f"{source_id}_{TODAY}.html"
+    path = download_and_cache(url, filename)
+    if not path:
+        continue
+    with open(path, "r", encoding="utf-8") as f:
+        html = f.read()
+    soup = BeautifulSoup(html, "html.parser")
+    pre = soup.find("pre")
+    if not pre:
+        print(f"⚠️ Nema <pre> taga u: {source_id}")
+        continue
+    blocks = extract_cot_blocks_from_pre(pre.get_text())
+    for header, block in blocks:
+        parsed = parse_cot_block_full(header, block)
+        if parsed and parsed["groups"]:
+            full_report["entries"].append(parsed)
 
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(full_report, f, indent=2)
-    print(f"✅ Full COT izvještaj sačuvan u: {OUTPUT_FILE}")
+# 💾 Snimi finalni JSON
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    json.dump(full_report, f, indent=2)
+
+print(f"✅ Full COT izvještaj sačuvan u: {OUTPUT_FILE}")
