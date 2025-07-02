@@ -23,7 +23,7 @@ def load_summary(filepath):
             summary_html += "</ul>"
             return summary_html
 
-        # Summary za COT fajl (tabelarni prikaz)
+        # Summary za COT fajl – poboljšan prikaz
         elif "entries" in data and len(data["entries"]) > 0:
             entry = data["entries"][0]
             market = entry["market"]
@@ -45,7 +45,7 @@ def load_summary(filepath):
                 rows += f"""
                 <tr>
                     <td>{g}</td>
-                    <td>{net:+}</td>
+                    <td style='text-align:right;'>{net:+}</td>
                     <td>{emoji_dom} {dom.capitalize()}</td>
                     <td>{emoji_alert} {alert.capitalize()}</td>
                     <td>{long_pct:.1f}%</td>
@@ -56,11 +56,16 @@ def load_summary(filepath):
 
             return f"""
             <p><strong>📌 Tržište:</strong> {market}<br><strong>📅 Open interest:</strong> {oi}</p>
-            <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; font-size: 14px;">
+            <table style="border-collapse: collapse; width: 100%; font-size: 14px;">
                 <thead style="background-color: #f3f4f6;">
                     <tr>
-                        <th>Grupa</th><th>Net</th><th>Dominacija</th><th>Alert</th>
-                        <th>% Long</th><th>% Short</th><th>Trgovaca</th>
+                        <th style='text-align:left; padding: 8px; border: 1px solid #ccc;'>Grupa</th>
+                        <th style='text-align:right; padding: 8px; border: 1px solid #ccc;'>Net pozicija</th>
+                        <th style='text-align:left; padding: 8px; border: 1px solid #ccc;'>Dominacija</th>
+                        <th style='text-align:left; padding: 8px; border: 1px solid #ccc;'>Upozorenje</th>
+                        <th style='text-align:right; padding: 8px; border: 1px solid #ccc;'>% Long</th>
+                        <th style='text-align:right; padding: 8px; border: 1px solid #ccc;'>% Short</th>
+                        <th style='text-align:right; padding: 8px; border: 1px solid #ccc;'>Broj Trgovaca</th>
                     </tr>
                 </thead>
                 <tbody>
