@@ -118,7 +118,7 @@
     "screener": "forex"
   },
   "XAU/USD": {
-    "aliases": ["XAUUSD", "XAU/USD", "GOLD", "GOLD/USD", "GOLD - COMMODITY EXCHANGE INC.", "MICRO GOLD"],
+    "aliases": ["XAUUSD", "XAU/USD", "GOLD", "GOLD/USD"],
     "map": {
       "tradingview_ta_v2": "XAUUSD",
       "tvdatafeed": "XAUUSD"
